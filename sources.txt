@@ -1,0 +1,3 @@
+These are the sources that made this program possible:
+
+Understanding Chess Board Representation: https://lichess.org/@/likeawizard/blog/review-of-different-board-representations-in-computer-chess/S9eQCAWa
