@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../headers/board.h"
+#include "../headers/Board.h"
 
 ChessBoard::ChessBoard() {
     /*
@@ -24,15 +24,23 @@ ChessBoard::ChessBoard() {
     white_occupied = white_pawns | white_knights | white_bishops | white_rooks | white_queens | white_king;
     black_occupied = black_pawns | black_knights | black_bishops | black_rooks | black_queens | black_king;
     occupied       = white_occupied | black_occupied;
-    white_to_move = true;
-    white_king_side_castle = true;
+    en_passant_square       = 0ULL;
+    white_to_move           = true;
+    white_king_side_castle  = true;
     white_queen_side_castle = true;
-    black_king_side_castle = true;
+    black_king_side_castle  = true;
     black_queen_side_castle = true;
 }
 
-void ChessBoard::printBitboard(uint64_t bitboard) {
+void ChessBoard::printBitboard(bool is_white, int piece) {
     std::cout << "Priting bitboard..." << std::endl << std::endl;
+
+    uint64_t bitboard;
+
+         if(piece == PAWN)   bitboard = is_white ? white_pawns   : black_pawns;
+    else if(piece == KNIGHT) bitboard = is_white ? white_knights : black_knights;
+    else if(piece == BISHOP) bitboard = is_white ? white_bishops : black_bishops;
+    else return; 
 
     for (int rank = 7; rank >= 0; rank--) {
         std::cout << rank + 1 << "  ";
