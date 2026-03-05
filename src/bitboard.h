@@ -3,7 +3,6 @@
 
 #include <cstdint> 
 
-
 enum bbtype { KING, QUEENS, ROOKS, BISHOPS, KNIGHTS, PAWNS};
 enum colors { WHITE, BLACK };
 
