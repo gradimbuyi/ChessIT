@@ -8,9 +8,8 @@
 #include <vector>
 
 namespace MoveGenerator {
-
-    std::vector<Move> generate_moves(const Bitboard &bitboard);
-
+    void generateMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+    
     void pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves);
     void knightMoves(const Bitboard &bitboard, std::vector<Move> &moves);
     void bishopMoves(const Bitboard &bitboard, std::vector<Move> &moves);
