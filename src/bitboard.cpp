@@ -1,5 +1,6 @@
 #include <iostream>
 #include "bitboard.h"
+#include "move.h"
 
 Bitboard::Bitboard() { 
     piecesBB[WHITE][PAWNS]   = 0x000000000000FF00ULL;
@@ -91,4 +92,84 @@ void Bitboard::visualizeBoard() {
         std::cout << std::endl;
     }
     std::cout <<  std::endl << "   a b c d e f g h" << std::endl << std::endl;
+}
+
+int Bitboard::getPieceType(int color, int square) {
+    uint64_t mask = 1ULL << square;
+
+    for(int piece_type = 0; piece_type < 6; piece_type++) {
+        if(piecesBB[color][piece_type] & mask) return piece_type;
+    }
+
+    return -1;
+}
+
+void Bitboard::updateOccupancy() {
+    white_occupied = 0;
+    black_occupied = 0;
+
+    for(int piece_type = 0; piece_type < 6; piece_type++) {
+        white_occupied |= piecesBB[WHITE][piece_type];
+        black_occupied |= piecesBB[BLACK][piece_type];
+    }
+
+    occupied = white_occupied | black_occupied;
+}
+
+void Bitboard::saveCurrentState() {
+    BoardState state;
+
+    for(int color = 0; color < 2; color++) {
+        for(int piece = 0; piece < 6; piece++) {
+            state.pieces[color][piece] = piecesBB[color][piece];
+        }
+    }
+
+    state.side = side;
+
+    history.push_back(state);
+}
+
+void Bitboard::makeMove(const Move &move) {
+    saveCurrentState();
+
+    int from = move.getFrom();
+    int to   = move.getTo();
+
+    uint64_t from_mask = 1ULL << from;
+    uint64_t to_mask   = 1ULL << to;
+
+    int piece = getPieceType(side, from);
+
+    piecesBB[side][piece] &= ~from_mask;
+    
+    int enemy = !side;
+
+    for(int piece_type = 0; piece_type < 6; piece_type++) {
+        if(piecesBB[enemy][piece_type] & to_mask) {
+            piecesBB[enemy][piece_type] &= ~to_mask;
+            break;
+        }
+    }
+
+    piecesBB[side][piece] |= to_mask;
+    
+    updateOccupancy();
+
+    side = !side;
+}
+
+void Bitboard::undoMove(const Move &move) {
+    BoardState state = history.back();
+    history.pop_back();
+
+    for(int color = 0; color < 2; color++) {
+        for(int piece = 0; piece < 6; piece++) {
+            piecesBB[color][piece] = state.pieces[color][piece];
+        }
+    }
+
+    side = state.side;
+
+    updateOccupancy();
 }
