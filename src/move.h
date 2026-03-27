@@ -17,13 +17,19 @@ class Move {
             m_Move = ((flags & 0xf) << 12) | ((from & 0x3f) << 6) | (to & 0x3f);
         }
 
-        unsigned int getTo()   { return m_Move & 0x3f; }
-        unsigned int getFrom() { return (m_Move >> 6) & 0x3f; }
-        unsigned int getFlag() { return (m_Move >> 12) & 0x0f; }
+        unsigned int getTo()   const { return m_Move & 0x3f; }
+        unsigned int getFrom() const { return (m_Move >> 6) & 0x3f; }
+        unsigned int getFlag() const { return (m_Move >> 12) & 0x0f; }
 
         void setTo(unsigned int to) { m_Move &= ~0x3f; m_Move |= to & 0x3f; }
         void setFrom(unsigned int from) { m_Move &= ~0xfc0; m_Move |= (from & 0x3f) << 6; }
-        bool isCapture() const { return (m_Move & CAPTURES) != 0; }
+        
+        bool isCapture() const { 
+            unsigned int f = getFlag();
+            return f == CAPTURES             || f == EN_CAPTURES          ||
+                   f == KNIGHT_PROMO_CAPTURE || f == BISHOP_PROMO_CAPTURE ||
+                   f == ROOK_PROMO_CAPTURE   || f == QUEEN_PROMO_CAPTURE;
+        }
     
         unsigned int getButterflyIndex() const { return m_Move & 0x0fff; } 
 
