@@ -7,15 +7,17 @@
 
 #include <vector>
 
-namespace MoveGenerator {
-    void generateMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+class MoveGenerator {
+    public:
+        void generateMoves(const Bitboard &bitboard, std::vector<Move> &moves);
     
-    void pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-    void knightMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-    void bishopMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-    void rookMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-    void queenMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-    void kingMoves(const Bitboard &bitboardd, std::vector<Move> &moves);
-}
+    private:
+        void pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void knightMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void bishopMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void rookMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void queenMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void kingMoves(const Bitboard &bitboardd, std::vector<Move> &moves);
+};
 
 #endif
