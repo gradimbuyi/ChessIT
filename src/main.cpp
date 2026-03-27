@@ -1,16 +1,19 @@
 #include "bitboard.h"
 #include "move.h"
 #include "movegen.h"
+#include "perft.h"
 
 #include <iostream>
 
 int main() {
     Bitboard bitboard;
-    std::vector<Move> moves;
+    MoveGenerator movegen;
 
-    MoveGenerator::generateMoves(bitboard, moves);
-
-    std::cout << "Moves generated: " << moves.size() << std::endl;
+    for(int depth = 1; depth <= 4; depth++)
+    {
+        long nodes = perft(bitboard, movegen, depth);
+        std::cout << "Depth " << depth << ": " << nodes << std::endl;
+    }
     
     return 0;
 }
