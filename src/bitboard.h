@@ -2,22 +2,24 @@
 #define BITBOARD_H
 
 #include <cstdint> 
+#include <string>
+#include <vector>
 
 #include "move.h"
 
 enum bbtype { KING, QUEENS, ROOKS, BISHOPS, KNIGHTS, PAWNS};
 enum colors { WHITE, BLACK };
 
+struct CastlingRight {
+    bool king_side[2];
+    bool queen_side[2];
+};
+
 struct BoardState {
     uint64_t pieces[2][6];
     bool side;
     int ep_square;
     CastlingRight castling;
-};
-
-struct CastlingRight {
-    bool king_side[2];
-    bool queen_side[2];
 };
 
 class Bitboard {
@@ -43,29 +45,37 @@ class Bitboard {
         void nonEnPassantCaptureHanlder(int to_mask);
         void revokeCastlingRights();
         void revokeRookSideCastlingRight(int color, int from);
+        void resetState();
         
 
     public:
         Bitboard();
+       
         void printBitboard(const int color, const int type);
         void visualizeBoard();
 
         uint64_t getPieces(const int color, const int type) const { return piecesBB[color][type]; }
-        uint64_t getOccupied() const { return occupied; }
+        uint64_t getOccupied()      const { return occupied; }
         uint64_t getWhiteOccupied() const { return white_occupied; }
         uint64_t getBlackOccupied() const { return black_occupied; }
 
         void setPieces(const int color, const int type, uint64_t pieces) { piecesBB[color][type] = pieces; }
         void setMovingSide(bool value) { side = value; }
+        void setEpSquare(int square)   { ep_square = square; }
+        void setCastlingRights(CastlingRight &rights) { castling = rights; }
+       
         bool getMovingSide() const { return side; }
 
         int getEpSquare() const { return ep_square; }
 
-        bool canCastleKingSide(int color) const { return castling.king_side[color]; }
+        bool canCastleKingSide(int color)  const { return castling.king_side[color]; }
         bool canCastleQueenSide(int color) const { return castling.queen_side[color]; }
+        bool isSquareAttacked(int square, int color) const;
+        bool isKingInCheck(int color) const;
 
         void makeMove(const Move &move);
         void undoMove();
+        void loadFEN(const std::string &fen);
 };
 
 #endif

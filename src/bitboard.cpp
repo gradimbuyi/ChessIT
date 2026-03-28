@@ -135,7 +135,7 @@ void Bitboard::specialMoveHandler(int from, int to, int flag) {
 
         case EN_CAPTURES: {
             int square = side == WHITE ? to - 8 : to + 8;
-            piecesBB[enemy][PAWNS] &= -(1ULL << square); 
+            piecesBB[enemy][PAWNS] &= ~(1ULL << square); 
             break;
         }
 
@@ -143,8 +143,8 @@ void Bitboard::specialMoveHandler(int from, int to, int flag) {
             int rook_from = side == WHITE ? 7 : 63;
             int rook_to   = side == WHITE ? 5 : 61;
             
-            piecesBB[enemy][ROOKS]  &= -(1ULL << rook_from);
-            piecesBB[enemy][ROOKS]  |=  (1ULL << rook_to);
+            piecesBB[side][ROOKS]  &= ~(1ULL << rook_from);
+            piecesBB[side][ROOKS]  |=  (1ULL << rook_to);
             castling.king_side[side] =  false; 
             break;
         }
@@ -153,8 +153,8 @@ void Bitboard::specialMoveHandler(int from, int to, int flag) {
             int rook_from = side == WHITE ? 0 : 56;
             int rook_to   = side == WHITE ? 3 : 59;
             
-            piecesBB[enemy][ROOKS]   &= -(1ULL << rook_from);
-            piecesBB[enemy][ROOKS]   |=  (1ULL << rook_to);
+            piecesBB[side][ROOKS]   &= ~(1ULL << rook_from);
+            piecesBB[side][ROOKS]   |=  (1ULL << rook_to);
             castling.queen_side[side] =  false; 
             break;
         }
@@ -170,6 +170,7 @@ void Bitboard::nonEnPassantCaptureHanlder(int to_mask) {
     for(int pt = 0; pt < 6; pt++) {
         if(piecesBB[enemy][pt] & to_mask) {
             piecesBB[enemy][pt] &= ~to_mask;
+            break;
         }
     }
 }
@@ -223,9 +224,9 @@ void Bitboard::revokeRookSideCastlingRight(int color, int from) {
 void Bitboard::makeMove(const Move &move) {
     saveCurrentState();
 
-    int from   = move.getFrom();
-    int to     = move.getTo();
-    int flag   = move.getFlag();
+    int  from  = move.getFrom();
+    int  to    = move.getTo();
+    int  flag  = move.getFlag();
     bool enemy = !side;
 
     uint64_t from_mask = 1ULL << from;
@@ -254,6 +255,7 @@ void Bitboard::makeMove(const Move &move) {
 
 void Bitboard::undoMove() {
     BoardState state = history.back();
+    
     history.pop_back();
 
     for(int color = 0; color < 2; color++) {
@@ -265,6 +267,195 @@ void Bitboard::undoMove() {
     side = state.side;
     ep_square = state.ep_square;
     castling = state.castling;
+
+    updateOccupancy();
+}
+
+bool Bitboard::isSquareAttacked(int square, int color) const {
+    uint64_t enemy_pawns   = piecesBB[color][PAWNS];
+    uint64_t enemy_rooks   = piecesBB[color][ROOKS];
+    uint64_t enemy_bishops = piecesBB[color][BISHOPS];
+    uint64_t enemy_knights = piecesBB[color][KNIGHTS];
+    uint64_t enemy_queens  = piecesBB[color][QUEENS]; 
+    uint64_t enemy_king    = piecesBB[color][KING];
+
+    int sq_rank = square >> 3;
+    int sq_file = square &  7;
+
+    if(color == WHITE) {
+        if((sq_file > 0 && square - 9 >= 0) && (enemy_pawns & (1ULL << (square - 9)))) return true;
+        if((sq_file < 7 && square - 7 >= 0) && (enemy_pawns & (1ULL << (square - 7)))) return true;
+
+    } else {
+        if((sq_file > 0 && square + 7 < 64) && (enemy_pawns & (1ULL << (square + 7)))) return true;
+        if((sq_file < 7 && square + 9 < 64) && (enemy_pawns & (1ULL << (square + 9)))) return true;
+    }
+
+    int knight_offsets[] = { 6, 10, 15, 17, -6, -10, -15, -17 };
+
+    for(int i = 0; i < 8; i++) {
+        int to = knight_offsets[i] + square;
+
+        if(to < 0 || to > 63) continue;
+
+        int file_diff = abs((to & 7)  - sq_file);
+        int rank_diff = abs((to >> 3) - sq_rank);
+
+        if(!((file_diff == 1 && rank_diff == 2) || (file_diff == 2 && rank_diff == 1))) continue;
+
+        if(enemy_knights & (1ULL << to)) return true;
+    }
+
+    int king_offsets[] = { 1, 7, 8, 9, -1, -7, -8, -9 };
+    
+    for(int offset : king_offsets) {
+        int to = square + offset;
+    
+        if(to < 0 || to > 63) continue;
+
+        int to_rank = to >> 3;
+        int to_file = to & 7;
+    
+        if(abs(to_rank - sq_rank) > 1 || abs(to_file - sq_file) > 1) continue;
+
+        if(enemy_king & (1ULL << to)) return true;
+    }
+
+    auto slidingAttacked = [&](uint64_t attackers, const int directions[], int directions_count) -> bool {
+        for(int i = 0; i < directions_count; i++) {
+            int direction = directions[i];
+            int curr_sq   = square;
+            int curr_rank = sq_rank;
+            int curr_file = sq_file;
+
+            while(true) {
+                int prev_rank = curr_rank;
+                int prev_file = curr_file;
+
+                curr_sq += direction;
+
+                if(curr_sq < 0 || curr_sq > 63) break;
+
+                curr_rank = curr_sq >> 3;
+                curr_file = curr_sq &  7;
+
+                if(abs(curr_rank - prev_rank ) > 1 || abs(curr_file - prev_file) > 1) break;
+
+                uint64_t curr_sq_mask = 1ULL << curr_sq; 
+
+                if(attackers & curr_sq_mask) return true;
+                if(occupied  & curr_sq_mask) break;
+            }
+        }
+
+        return false;
+    };
+
+    int      orthogonal[]         = { 1, -1, 8, -8 };
+    uint64_t orthogonal_attackers = enemy_rooks | enemy_queens;
+
+    if(slidingAttacked(orthogonal_attackers, orthogonal, 4)) return true;
+
+    int      diagonal[]         = { 7, 9, -7, -9 };
+    uint64_t diagonal_attackers = enemy_bishops | enemy_queens;
+
+    if(slidingAttacked(diagonal_attackers, diagonal, 4)) return true;
+
+    return false;
+}
+
+bool Bitboard::isKingInCheck(int color) const {
+    int king_sq = __builtin_ctzll(piecesBB[color][KING]);
+    return isSquareAttacked(king_sq, !color);
+}
+
+void Bitboard::resetState() {
+    for(int color = 0; color < 2; color++) {
+        for(int piece = 0; piece < 6; piece++) {
+            piecesBB[color][piece] = 0ULL;
+        }
+    }
+
+    ep_square = -1;
+
+    castling.king_side[WHITE]  = false;
+    castling.king_side[BLACK]  = false;
+    castling.queen_side[WHITE] = false;
+    castling.queen_side[BLACK] = false;
+
+    updateOccupancy();
+
+    history.clear();
+}
+
+void Bitboard::loadFEN(const std::string &fen) {
+    resetState();
+
+    int i    = 0;
+    int rank = 7;
+    int file = 0;
+
+    while(fen[i] != ' ') {
+        char curr_character = fen[i++];
+
+        if(curr_character == '/') {
+            rank--;
+            file = 0;
+            continue;
+        }
+
+        if(curr_character >= '1' && curr_character <= '8') {
+            file += (curr_character - '0');
+            continue;
+        }
+
+        int square = rank * 8 + file;
+        int color  = (curr_character >= 'a' && curr_character <= 'z') ? BLACK : WHITE;
+
+        switch(curr_character) {
+            case 'P' : case 'p' : piecesBB[color][PAWNS]   |= (1ULL << square); break;
+            case 'N' : case 'n' : piecesBB[color][KNIGHTS] |= (1ULL << square); break;
+            case 'B' : case 'b' : piecesBB[color][BISHOPS] |= (1ULL << square); break;
+            case 'R' : case 'r' : piecesBB[color][ROOKS]   |= (1ULL << square); break;
+            case 'Q' : case 'q' : piecesBB[color][QUEENS]  |= (1uLL << square); break;
+            case 'K' : case 'k' : piecesBB[color][KING]    |= (1ULL << square); break;
+        }
+
+        file++;
+    }
+
+    i++;
+
+    side = (fen[i] == 'w') ? WHITE : BLACK;
+    i += 2;
+
+    if(fen[i] == '-') {
+        i++;
+
+    } else {
+        while(fen[i] != ' ') {
+            switch(fen[i]) {
+                case 'K': castling.king_side[WHITE]  = true; break;
+                case 'Q': castling.queen_side[WHITE] = true; break;
+                case 'k': castling.king_side[BLACK]  = true; break;
+                case 'q': castling.queen_side[BLACK] = true; break;
+            }
+            i++;
+        }
+    }
+
+    i++;
+
+    if(fen[i] == '-') {
+        ep_square = -1;
+        i++;
+
+    } else {
+        int ep_file = fen[i]     - 'a';
+        int ep_rank = fen[i + 1] - '1';
+        ep_square = ep_rank * 8 + ep_file;
+        i += 2;
+    }
 
     updateOccupancy();
 }

@@ -1,12 +1,28 @@
 #include "movegen.h"
+#include <iostream>
 
-void MoveGenerator::generateMoves(const Bitboard &bitboard, std::vector<Move> &moves) {
-    pawnMoves(bitboard, moves);
-    knightMoves(bitboard, moves);
-    bishopMoves(bitboard, moves);
-    rookMoves(bitboard, moves);
-    queenMoves(bitboard, moves);
-    kingMoves(bitboard, moves);
+void MoveGenerator::generateMoves(Bitboard &bitboard, std::vector<Move> &moves) {
+    std::vector<Move> candidates;
+    
+    candidates.reserve(80);
+
+    pawnMoves(bitboard, candidates);
+    knightMoves(bitboard, candidates);
+    bishopMoves(bitboard, candidates);
+    rookMoves(bitboard, candidates);
+    queenMoves(bitboard, candidates);
+    kingMoves(bitboard, candidates);
+
+    int side = bitboard.getMovingSide();
+
+    for(const Move &move : candidates) {
+        bitboard.makeMove(move);
+        
+        if(!bitboard.isKingInCheck(side)) {
+            moves.push_back(move);
+        }
+        bitboard.undoMove();
+    }
 }
 
 void addPawnPromotions(std::vector<Move> &moves, int from, int to) {
@@ -16,7 +32,7 @@ void addPawnPromotions(std::vector<Move> &moves, int from, int to) {
     moves.push_back(Move(from, to, KNIGHT_PROMOTION));
 }
 
-void forwardPawnMoves(std::vector<Move> &moves, int from, int to, bool promotes, bool occupied, int forward, int start_rank, int rank) {
+void forwardPawnMoves(std::vector<Move> &moves, int from, int to, bool promotes, uint64_t occupied, int forward, int start_rank, int rank) {
     if(promotes) { addPawnPromotions(moves, from, to); return ; } 
 
     moves.push_back(Move(from, to, QUIET));
@@ -24,15 +40,17 @@ void forwardPawnMoves(std::vector<Move> &moves, int from, int to, bool promotes,
     if(rank == start_rank) {
         int to2 = from + 2 * forward;
        
-        if(!(1ULL << to2) & occupied) {
+        if(!((1ULL << to2) & occupied)) {
             moves.push_back(Move(from, to2, DOUBLE_PAWN_PUSH));
         }
     }
 }
 
-void pawnCaptures(std::vector<Move> &moves, int from, int to, bool side, bool promotes, uint64_t enemy, int file, int ep_square) {
-    int directions[2] = { side == WHITE ? 7 : -9,  side == WHITE ? 9 : -7 };
-    int files[2]     = { file - 1, file + 1 };
+void pawnCaptures(std::vector<Move> &moves, int from, int to, bool side, bool promotes, uint64_t enemy, int file, int ep_square, int rank) {
+    int  directions[2] = { side == WHITE ? 7 : -9,  side == WHITE ? 9 : -7 };
+    int  files[2]      = { file - 1, file + 1 };
+    int  ep_rank       = side == WHITE ? 4 : 3;
+    bool ep_eligible   = (rank == ep_rank);
 
     for(int i = 0; i < 2; i++) {
         int capture_file = files[i];
@@ -45,14 +63,14 @@ void pawnCaptures(std::vector<Move> &moves, int from, int to, bool side, bool pr
 
         if(capture_mask & enemy) {
             if(promotes) {
-                addPawnPromotions(moves, from, to);
-                return ;
+                addPawnPromotions(moves, from, capture_sq);
+                continue;
             }
 
             moves.push_back(Move(from, capture_sq, CAPTURES));
         }
 
-        if(ep_square != -1 && capture_sq == ep_square) {
+        if(ep_eligible && ep_square != -1 && capture_sq == ep_square) {
             moves.push_back(Move(from, capture_sq, EN_CAPTURES));
         }
     }
@@ -62,8 +80,8 @@ void MoveGenerator::pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves
     bool side = bitboard.getMovingSide();
 
     uint64_t pawns    = bitboard.getPieces(side, PAWNS);
-    uint64_t friendly = side ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied();
-    uint64_t enemy    = side ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied();
+    uint64_t friendly = side == WHITE ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied();
+    uint64_t enemy    = side == WHITE ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied();
     uint64_t occupied = bitboard.getOccupied();
 
     int ep_square  = bitboard.getEpSquare();
@@ -82,32 +100,34 @@ void MoveGenerator::pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves
             forwardPawnMoves(moves, from, to, promotes, occupied, forward, start_rank, rank);
         }
 
-        pawnCaptures(moves, from, to, side, promotes, enemy, file, ep_square);
+        pawnCaptures(moves, from, to, side, promotes, enemy, file, ep_square, rank);
 
         pawns &= pawns - 1;
     }
 }
 
 void MoveGenerator::knightMoves(const Bitboard &bitboard, std::vector<Move> &moves) {
-    bool side = bitboard.getMovingSide(); 
-
-    uint64_t knights  =        bitboard.getPieces(side, KNIGHTS);
-    uint64_t friendly = side ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied(); 
-    uint64_t enemy    = side ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied(); 
+    bool     side     = bitboard.getMovingSide(); 
+    uint64_t knights  = bitboard.getPieces(side, KNIGHTS);
+    uint64_t friendly = side == WHITE ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied(); 
+    uint64_t enemy    = side == WHITE ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied(); 
     
     int candidates[]  = { 6, 10, 15, 17, -6, -10, -15, -17 };
-    
-    uint64_t edges[]  = { 0xFCFCFCFCFCFCFCFCULL, 0xF3F3F3F3F3F3F3F3ULL, 0x7F7F7F7F7F7F7F7FULL,  0xFEFEFEFEFEFEFEFEULL };
 
     while(knights) {
-        int from = __builtin_ctzll(knights);
+        int from      = __builtin_ctzll(knights);
+        int from_file = from & 7;
+        int from_rank = from >> 3;
 
         for(int i = 0; i < 8; i++) {
             int to = from + candidates[i];
             
             if(to < 0 || to > 63) continue;
             
-            if(!(edges[i >> 1] & (1ULL << from))) continue;
+            int file_diff = abs((to & 7)  - from_file);
+            int rank_diff = abs((to >> 3) - from_rank);
+
+            if(!((file_diff == 1 && rank_diff == 2) || (file_diff == 2 && rank_diff == 1))) continue;
 
             uint64_t target = 1ULL << to;
             
@@ -123,29 +143,44 @@ void MoveGenerator::knightMoves(const Bitboard &bitboard, std::vector<Move> &mov
 }
 
 void castlingMoves(const Bitboard &bitboard, std::vector<Move> &moves) {
-    bool side             = bitboard.getMovingSide();
-    uint64_t occupied     = bitboard.getOccupied();
-    uint64_t rooks        = bitboard.getPieces(side, ROOKS);
-    int king_sq           = side == WHITE ? 4 : 60;
-    int kingside_rook_sq  = side == WHITE ? 7 : 63;
-    int queenside_rook_sq = side == WHITE ? 0 : 56;
+    bool     side                  = bitboard.getMovingSide();
+    int      enemy                 = !side;
+    uint64_t occupied              = bitboard.getOccupied();
+    uint64_t rooks                 = bitboard.getPieces(side, ROOKS);
+    int      king_sq               = side == WHITE ? 4 : 60;
+    int      king_side_rook_sq     = side == WHITE ? 7 : 63;
+    int      queen_side_rook_sq    = side == WHITE ? 0 : 56;
+    
+    uint64_t king_side_empty_mask  = side == WHITE ? (1ULL << 5)  | (1ULL << 6)  : (1ULL << 61) | (1ULL << 62);
+    uint64_t queen_side_empty_mask = side == WHITE ? (1ULL << 1)  | (1ULL << 2)  | (1ULL << 3) :
+                                                     (1ULL << 57) | (1ULL << 58) | (1ULL << 59); 
 
-    uint64_t kingside_empty_mask  = side == WHITE ? (1ULL << 5)  | (1ULL << 6)  : (1ULL << 61) | (1ULL << 62);
-    uint64_t queenside_empty_mask = side == WHITE ? (1ULL << 1)  | (1ULL << 2)  | (1ULL << 3) :
-                                                    (1ULL << 57) | (1ULL << 58) | (1ULL << 59); 
+    if(bitboard.isSquareAttacked(king_sq, enemy)) return;
 
     if(bitboard.canCastleKingSide(side)) {
-        bool r_present  = (rooks & (1ULL << kingside_rook_sq)) != 0;
-        bool path_clear = (occupied & kingside_empty_mask) != 0;
+        bool r_present  = (rooks & (1ULL << king_side_rook_sq)) != 0;
+        bool path_clear = (occupied & king_side_empty_mask) == 0;
+        int  transit    = side == WHITE ? 5 : 61;
+        int  landing    = side == WHITE ? 6 : 62;
+        bool is_safe    = !bitboard.isSquareAttacked(transit, enemy) && 
+                          !bitboard.isSquareAttacked(landing, enemy);
 
-        if(r_present & path_clear) moves.push_back(Move(king_sq, king_sq + 2, KING_CASTLE));
+        if(r_present && path_clear && is_safe) { 
+            moves.push_back(Move(king_sq, king_sq + 2, KING_CASTLE));
+        }
     }
 
     if(bitboard.canCastleQueenSide(side)) {
-        bool r_present  = (rooks & (1ULL << queenside_rook_sq)) != 0;
-        bool path_clear = (occupied & queenside_empty_mask) != 0;
+        bool r_present  = (rooks & (1ULL << queen_side_rook_sq)) != 0;
+        bool path_clear = (occupied & queen_side_empty_mask) == 0;
+        int  transit    = side == WHITE ? 3 : 59;
+        int  landing    = side == WHITE ? 2 : 58;
+        bool is_safe    = !bitboard.isSquareAttacked(transit, enemy) && 
+                          !bitboard.isSquareAttacked(landing, enemy);
 
-        if(r_present & path_clear) moves.push_back(Move(king_sq, king_sq - 2, QUEEN_CASTLE));
+        if(r_present && path_clear && is_safe) {
+            moves.push_back(Move(king_sq, king_sq - 2, QUEEN_CASTLE));
+        }
     }
 }
 
@@ -185,8 +220,8 @@ void MoveGenerator::kingMoves(const Bitboard &bitboard, std::vector<Move> &moves
 }
 
 void addSlidingMoves(const Bitboard &bitboard, uint64_t pieces, const int (&directions)[8], bool side, std::vector<Move> &moves) {
-    uint64_t friendly = side ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied();
-    uint64_t enemy    = side ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied();
+    uint64_t friendly = side == WHITE ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied();
+    uint64_t enemy    = side == WHITE ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied();
     
     while(pieces) {
         int from      = __builtin_ctzll(pieces);

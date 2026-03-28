@@ -9,7 +9,7 @@
 
 class MoveGenerator {
     public:
-        void generateMoves(const Bitboard &bitboard, std::vector<Move> &moves);
+        void generateMoves(Bitboard &bitboard, std::vector<Move> &moves);
     
     private:
         void pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves);
