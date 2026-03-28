@@ -6,11 +6,11 @@ This project aims to implement a simple chess engine that can be integrated into
 
 Produces a fully functional chess engine that can communicate via UCI protocol and play complete games on the platform Lichess.
 
-- [ ] Legal move generation for all chess pieces.
+- [x] Legal move generation for all chess pieces.
   - Proper check detection
   - Bitboard based board representation
   - Full support for promotion, castling, en passant, and piece movements
-- [ ] Make and unmake moves.
+- [x] Make and unmake moves.
 - [ ] Basic search
   - Implement minimax tree with alpha-beta pruning
   - Fixed search depth (4 or 5)
