@@ -41,8 +41,8 @@ class Bitboard {
         void saveCurrentState();
         void updateOccupancy();
         void specialMoveHandler(int from, int to, int flag);
-        void promoMoveHandler(int to_mask, int flag);
-        void nonEnPassantCaptureHanlder(int to_mask);
+        void promoMoveHandler(uint64_t to_mask, int flag);
+        void nonEnPassantCaptureHanlder(uint64_t to_mask);
         void revokeCastlingRights();
         void revokeRookSideCastlingRight(int color, int from);
         void resetState();

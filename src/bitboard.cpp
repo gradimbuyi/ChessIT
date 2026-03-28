@@ -164,7 +164,7 @@ void Bitboard::specialMoveHandler(int from, int to, int flag) {
     }
 }
 
-void Bitboard::nonEnPassantCaptureHanlder(int to_mask) {
+void Bitboard::nonEnPassantCaptureHanlder(uint64_t to_mask) {
     bool enemy = !side;
     
     for(int pt = 0; pt < 6; pt++) {
@@ -175,7 +175,7 @@ void Bitboard::nonEnPassantCaptureHanlder(int to_mask) {
     }
 }
 
-void Bitboard::promoMoveHandler(int to_mask, int flag) {
+void Bitboard::promoMoveHandler(uint64_t to_mask, int flag) {
     switch(flag) {
         case KNIGHT_PROMOTION:
         case KNIGHT_PROMO_CAPTURE: {
@@ -243,10 +243,11 @@ void Bitboard::makeMove(const Move &move) {
     if (move.isCapture() && flag != EN_CAPTURES) nonEnPassantCaptureHanlder(to_mask);
     
     promoMoveHandler(to_mask, flag);
-    
-    if (piece == KING)    revokeCastlingRights();
-    if (piece == ROOKS)   revokeRookSideCastlingRight(side, from);
-    if (move.isCapture()) revokeRookSideCastlingRight(enemy, to);
+
+    if (flag < KNIGHT_PROMOTION) piecesBB[side][piece] |= to_mask;
+    if (piece == KING)           revokeCastlingRights();
+    if (piece == ROOKS)          revokeRookSideCastlingRight(side, from);
+    if (move.isCapture())        revokeRookSideCastlingRight(enemy, to);
 
     updateOccupancy();
     
