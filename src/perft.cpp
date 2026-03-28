@@ -1,6 +1,4 @@
-#include <fstream>
 #include <iostream>
-
 #include <iomanip>
 #include <chrono>
 
@@ -26,22 +24,8 @@ uint64_t Perft::perftRecurse(Bitboard &bitboard, int depth) {
     return nodes;
 }
 
-void Perft::runPerft(Bitboard &bitboard, int depth, const std::string &filename) {
-    std::ostream *out = &std::cout;
-    std::ofstream file;
-
-    if(!filename.empty()) {
-        file.open(filename);
-        if(!file.is_open()) {
-            std::cerr << "Failed to open file: " << filename << "\n";
-            return;
-        }
-        out = &file;
-    }
-
-    *out << "Running perft to depth " << depth << "...\n\n";
-
-    uint64_t total = 0;
+void Perft::runPerft(Bitboard &bitboard, int depth) {
+    std::cout << "Running perft to depth " << depth << "...\n\n";
 
     for(int i = 0; i < depth; i++) {
         auto start = std::chrono::high_resolution_clock::now();
@@ -51,32 +35,20 @@ void Perft::runPerft(Bitboard &bitboard, int depth, const std::string &filename)
         auto end = std::chrono::high_resolution_clock::now();
         auto ms  = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 
-        *out << "Depth " << i << " Nodes: " << std::setw(14) << nodes << " Time: " << ms << "ms\n";
+        std::cout << "Depth " << i + 1 << " Nodes: " << std::setw(14) << nodes << " Time: " << ms << "ms\n";
     }
 
-    *out << "\n";
+    std::cout << "\n";
 }
 
-void Perft::runPerftDivide(Bitboard &bitboard, int depth, const std::string &filename) {
-    std::ostream *out = &std::cout;
-    std::ofstream file;
-
-    if(!filename.empty()) {
-        file.open(filename);
-        if(!file.is_open()) {
-            std::cerr << "Failed to open file: " << filename << "\n";
-            return;
-        }
-        out = &file;
-    }
-
-    *out << "Perft divide at depth " << depth << "...\n\n";
+void Perft::runPerftDivide(Bitboard &bitboard, int depth) {
+    std::cout << "Perft divide at depth " << depth << "...\n\n";
 
     std::vector<Move> moves;
 
     movegen.generateMoves(bitboard, moves);
 
-    uint64_t total = 0;
+    uint64_t nodes_searched = 0;
 
     for(const Move &move : moves) {
         bitboard.makeMove(move);
@@ -91,7 +63,7 @@ void Perft::runPerftDivide(Bitboard &bitboard, int depth, const std::string &fil
         char to_file   = 'a' + (to & 7);
         char to_rank   = '1' + (to >> 3);
 
-        *out << from_file << from_rank << to_file << to_rank;
+        std::cout << from_file << from_rank << to_file << to_rank;
 
         switch(flag) {
             case KNIGHT_PROMOTION : case KNIGHT_PROMO_CAPTURE : std::cout << 'n'; break;
@@ -101,9 +73,9 @@ void Perft::runPerftDivide(Bitboard &bitboard, int depth, const std::string &fil
             default: break;
         }
 
-        *out << ": " << nodes << "\n";
-        total += nodes;
+        std::cout << ": " << nodes << "\n";
+        nodes_searched += nodes;
     }
 
-    *out << "\nTotal: " << total << "\n";
+    std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
