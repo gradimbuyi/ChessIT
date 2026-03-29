@@ -2,22 +2,12 @@
 #include "bitboard.h"
 
 Bitboard::Bitboard() { 
-    piecesBB[WHITE][PAWNS]   = 0x000000000000FF00ULL;
-    piecesBB[WHITE][KNIGHTS] = 0x0000000000000042ULL;
-    piecesBB[WHITE][BISHOPS] = 0x0000000000000024ULL;
-    piecesBB[WHITE][ROOKS]   = 0x0000000000000081ULL;
-    piecesBB[WHITE][QUEENS]  = 0x0000000000000008ULL;
-    piecesBB[WHITE][KING]    = 0x0000000000000010ULL;
-    piecesBB[BLACK][PAWNS]   = 0x00FF000000000000ULL;
-    piecesBB[BLACK][KNIGHTS] = 0x4200000000000000ULL;
-    piecesBB[BLACK][BISHOPS] = 0x2400000000000000ULL;    
-    piecesBB[BLACK][ROOKS]   = 0x8100000000000000ULL;
-    piecesBB[BLACK][QUEENS]  = 0x0800000000000000ULL;
-    piecesBB[BLACK][KING]    = 0x1000000000000000ULL;
+    initizializeSTARTPOSpiecesBB();
 
     updateOccupancy();
 
     side = WHITE;
+
     ep_square = -1;
 
     castling.king_side[WHITE]  = true;
@@ -50,6 +40,21 @@ void Bitboard::printBitboard(int color, int type) {
     }
 
     std::cout << "\n   a b c d e f g h\n\n";
+}
+
+void Bitboard::initizializeSTARTPOSpiecesBB() {
+    piecesBB[WHITE][PAWNS]   = 0x000000000000FF00ULL;
+    piecesBB[WHITE][KNIGHTS] = 0x0000000000000042ULL;
+    piecesBB[WHITE][BISHOPS] = 0x0000000000000024ULL;
+    piecesBB[WHITE][ROOKS]   = 0x0000000000000081ULL;
+    piecesBB[WHITE][QUEENS]  = 0x0000000000000008ULL;
+    piecesBB[WHITE][KING]    = 0x0000000000000010ULL;
+    piecesBB[BLACK][PAWNS]   = 0x00FF000000000000ULL;
+    piecesBB[BLACK][KNIGHTS] = 0x4200000000000000ULL;
+    piecesBB[BLACK][BISHOPS] = 0x2400000000000000ULL;    
+    piecesBB[BLACK][ROOKS]   = 0x8100000000000000ULL;
+    piecesBB[BLACK][QUEENS]  = 0x0800000000000000ULL;
+    piecesBB[BLACK][KING]    = 0x1000000000000000ULL;
 }
 
 void Bitboard::visualizeBoard() {
@@ -458,5 +463,22 @@ void Bitboard::loadFEN(const std::string &fen) {
         i += 2;
     }
 
+    updateOccupancy();
+}
+
+int Bitboard::getPieceTypePublic(int color, int square) { 
+    return getPieceType(color, square); 
+}
+ 
+void Bitboard::updateOccupancyPublic() { 
+    updateOccupancy(); 
+}
+void Bitboard::tempRemovePiece(int color, int piece, uint64_t mask) { 
+    piecesBB[color][piece] &= -mask;
+    updateOccupancy();
+}
+
+void Bitboard::tempRestorePiece(int color, int piece, uint64_t mask) {
+    piecesBB[color][piece] |= mask;
     updateOccupancy();
 }

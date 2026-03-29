@@ -1,3 +1,5 @@
-*.o
-external
+.env
+
 build
+
+.vscode

@@ -13,6 +13,7 @@ void Console::printHelpMenu() {
     std::cout << "\nCommands: \n";
     std::cout << "  perft <depth>           - run perft to depth N\n";
     std::cout << "  perft divide <depth>    - run perft divide at depth N\n";
+    std::cout << "  perft stats <depth>     - get perft stats at depth N\n";
     std::cout << "  load <fen>              - load a position from FEN\n";
     std::cout << "  display                 - print current board\n";
     std::cout << "  reset                   - reset to starting position\n";
@@ -25,13 +26,16 @@ void Console::perftHandler(std::istringstream &iss) {
     std::string next;
     iss >> next;
 
-    if(next == "divide") {
+    if(next == "divide" || next == "stats") {
         int depth;
+
         if(!(iss >> depth) || depth < 1) {
-            std::cout << "Usage: perft divide <depth>\n";
+            std::cout << "Usage: perft " << next << " <depth>\n";
             return;
         }
-        perft.runPerftDivide(bitboard, depth);
+
+        if  (next == "divide") perft.runPerftDivide(bitboard, depth);
+        else perft.runPerftStats(bitboard, depth);
         return;
     }
 
