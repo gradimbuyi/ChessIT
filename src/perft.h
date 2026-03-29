@@ -54,10 +54,10 @@ class Perft {
         PerftStats perftStatsRecurse(Bitboard &bitboard, int depth);
 
     public:
-        void     runPerft(Bitboard &bitboard, int depth);
-        void     runPerftDivide(Bitboard &bitboard, int depth);
-        void     runPerftStats(Bitboard &bitboard, int depth);
-        uint64_t perftNodes(Bitboard &bitboard, int depth);
+        void runPerft(Bitboard &bitboard, int depth);
+        void runPerftDivide(Bitboard &bitboard, int depth);
+        void runPerftStats(Bitboard &bitboard, int depth);
+        PerftStats perfStats(Bitboard &bitboard, int depth);
 };
 
 #endif

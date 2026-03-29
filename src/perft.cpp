@@ -80,10 +80,6 @@ void Perft::runPerftDivide(Bitboard &bitboard, int depth) {
     std::cout << "\nNodes searched: " << nodes_searched << "\n";
 }
 
-uint64_t Perft::perftNodes(Bitboard &bitboard, int depth) {
-    return perftRecurse(bitboard, depth);
-}
-
 PerftStats Perft::perftStatsRecurse(Bitboard &bitboard, int depth) {
     PerftStats stats;
 
@@ -92,6 +88,7 @@ PerftStats Perft::perftStatsRecurse(Bitboard &bitboard, int depth) {
     movegen.generateMoves(bitboard, moves);
 
     if(moves.empty()) return stats;
+    if(depth == 0) { stats.nodes = 1; return stats; }
 
     for(const Move &move : moves) {
         int flag = move.getFlag();
@@ -148,4 +145,8 @@ void Perft::runPerftStats(Bitboard &bitboard, int depth) {
     std::cout << "Checks:      " << std::setw(14) << stats.checks << "\n";
     std::cout << "Checkmates:  " << std::setw(14) << stats.checkmates << "\n";
     std::cout << "Time:        " << std::setw(14) << ms << "ms\n\n";
+}
+
+PerftStats Perft::perfStats(Bitboard &bitboard, int depth) {
+    return perftStatsRecurse(bitboard, depth);
 }

@@ -34,8 +34,9 @@ void Console::perftHandler(std::istringstream &iss) {
             return;
         }
 
-        if  (next == "divide") perft.runPerftDivide(bitboard, depth);
+        if(next == "divide") perft.runPerftDivide(bitboard, depth);
         else perft.runPerftStats(bitboard, depth);
+        
         return;
     }
 
