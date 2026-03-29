@@ -3,6 +3,7 @@
 #include <string>
 
 #include "console.h"
+#include "ucicomm.h"
 
 Console::Console(Bitboard &bitboard) : bitboard(bitboard) {
     bitboard.loadFEN(STARTPOS);
@@ -10,13 +11,14 @@ Console::Console(Bitboard &bitboard) : bitboard(bitboard) {
 
 void Console::printHelpMenu() {
     std::cout << "\nCommands: \n";
-    std::cout << "  perft <depth>        - run perft to depth N\n";
-    std::cout << "  perft divide <depth> - run perft divide at depth N\n";
-    std::cout << "  load <fen>           - load a position from FEN\n";
-    std::cout << "  display              - print current board\n";
-    std::cout << "  reset                - reset to starting position\n";
-    std::cout << "  help                 - show this menu\n";
-    std::cout << "  exit                 - quit\n\n";
+    std::cout << "  perft <depth>           - run perft to depth N\n";
+    std::cout << "  perft divide <depth>    - run perft divide at depth N\n";
+    std::cout << "  load <fen>              - load a position from FEN\n";
+    std::cout << "  display                 - print current board\n";
+    std::cout << "  reset                   - reset to starting position\n";
+    std::cout << "  help                    - show this menu\n";
+    std::cout << "  uci                     - switches into UCI mode\n";
+    std::cout << "  exit                    - quit\n\n";
 }
 
 void Console::perftHandler(std::istringstream &iss) {
@@ -100,6 +102,11 @@ void Console::runEngineCLI() {
 
         else if(command == "perft") {
             perftHandler(iss);
+        }
+
+        else if(command == "uci") {
+            UCIComm uci(bitboard);
+            uci.run();
         }
 
         else {
