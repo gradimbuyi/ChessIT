@@ -25,38 +25,13 @@ Produces a fully functional chess engine that can communicate via UCI protocol a
 ## File Structure
 
 ```
-├── /build
-├── /external       external dependencies
-├── /scripts        python scripts
-├── /src            headers and source files
-├── /tests          test files
+├── /.venv          python dependencies
+├── /.vscode        vscode config folder
+├── /engine         chess program
+├── /scripts        potential scripts
+├── .env
 ├── .gitignore
-├── Makefile
+├── bot.py
 ├── README.md
+├── requirements.txt
 ```
-
-## Testing
-
-The program makes use of the Catch2 library to perform integration test. Within the folder `external/catch2`, the files `catch_amalgamated.cpp` and `catch_amalgamated.hpp` allows us to import the library within our project.
-
-These files can be found on the [Catch2 GitHub Repository](https://github.com/catchorg/Catch2).
-
-## Using the Engine
-
-The project makes use of Make to compile and run the program.
-
-#### Cleaning the build:
-
-```
-make clean
-```
-
-#### Running the program:
-
-```
-make run
-```
-
-#### Where to download make:
-
-https://www.gnu.org/software/make/

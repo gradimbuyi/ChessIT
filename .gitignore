@@ -1,5 +1,9 @@
+# Setup folders
+
 .env
+.venv
+.vscode
+
+# Building folder
 
 build
-
-.vscode
