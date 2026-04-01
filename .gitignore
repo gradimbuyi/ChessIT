@@ -1,9 +1,11 @@
 # Setup folders
-
 .env
 .venv
 .vscode
+.prettierrc
+
+# Cash folder
+__pycache__/
 
 # Building folder
-
 build
