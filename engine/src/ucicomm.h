@@ -5,11 +5,13 @@
 
 #include "bitboard.h"
 #include "movegen.h"
+#include "eval.h"
 
 class UCIComm {
     private:
         Bitboard &bitboard;
         MoveGenerator movegen;
+        
 
         const std::string ENGINE_NAME  = "ChessIT";
         const std::string AUTHROR_NAME = "Gradi Mbuyi";
@@ -19,6 +21,7 @@ class UCIComm {
         void goHandler(std::istringstream &iss);
         Move parseMoveString(const std::string &move_string);
         Move pickRandomMove();
+        Move pickBestMove(int depth = 3); 
 
     public:
         UCIComm(Bitboard &bitboard);
