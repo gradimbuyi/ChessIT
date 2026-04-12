@@ -7,7 +7,8 @@
 
 #include "move.h"
 
-enum bbtype { KING, QUEENS, ROOKS, BISHOPS, KNIGHTS, PAWNS};
+enum bbtype { PAWNS, KNIGHTS, BISHOPS, ROOKS, QUEENS, KING };
+//enum bbtype { KING, QUEENS, ROOKS, BISHOPS, KNIGHTS, PAWNS};
 enum colors { WHITE, BLACK };
 
 struct CastlingRight {
@@ -46,7 +47,7 @@ class Bitboard {
         void revokeCastlingRights();
         void revokeRookSideCastlingRight(int color, int from);
         void resetState();
-        void initizializeSTARTPOSpiecesBB();
+        void initializeSTARTPOSpiecesBB();
 
     public:
         Bitboard();
