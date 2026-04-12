@@ -6,8 +6,8 @@ GTEST_FLAGS = -I$(GTEST_DIR)/include -L$(GTEST_DIR)/lib -lgtest -lgtest_main -pt
 
 TARGET      = engine/build/engine
 TEST_TARGET = engine/build/test
-SRCS        = engine/src/main.cpp engine/src/bitboard.cpp engine/src/movegen.cpp engine/src/perft.cpp engine/src/console.cpp engine/src/ucicomm.cpp
-TEST_SRCS   = engine/tests/perft_tests.cpp engine/src/bitboard.cpp engine/src/movegen.cpp engine/src/perft.cpp
+SRCS        = engine/src/main.cpp engine/src/bitboard.cpp engine/src/movegen.cpp engine/src/perft.cpp engine/src/console.cpp engine/src/ucicomm.cpp engine/src/eval.cpp
+TEST_SRCS   = engine/tests/perft_tests.cpp engine/tests/move_tests.cpp engine/tests/attack_movegen_tests.cpp engine/src/bitboard.cpp engine/src/movegen.cpp engine/src/perft.cpp engine/src/eval.cpp
 
 OBJS        = $(patsubst engine/src/%.cpp, engine/build/%.o, $(SRCS))
 TEST_OBJS   = $(patsubst %.cpp, engine/build/%.o, $(TEST_SRCS))
