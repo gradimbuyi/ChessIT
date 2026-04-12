@@ -36,6 +36,6 @@ run: all
 	./$(TARGET)
 
 clean:
-	rm -rf build/
+	rm -rf engine/build/
 
 .PHONY: all debug run clean test
