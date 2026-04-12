@@ -2,7 +2,6 @@
 #define MOVEGEN_H
 
 #include "bitboard.h"
-#include "movegen.h"
 #include "move.h"
 
 #include <vector>
@@ -17,7 +16,7 @@ class MoveGenerator {
         void bishopMoves(const Bitboard &bitboard, std::vector<Move> &moves);
         void rookMoves(const Bitboard &bitboard, std::vector<Move> &moves);
         void queenMoves(const Bitboard &bitboard, std::vector<Move> &moves);
-        void kingMoves(const Bitboard &bitboardd, std::vector<Move> &moves);
+        void kingMoves(const Bitboard &bitboard, std::vector<Move> &moves);
 };
 
 #endif
