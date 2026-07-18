@@ -11,13 +11,13 @@ Produces a fully functional chess engine that can communicate via UCI protocol a
   - Bitboard based board representation
   - Full support for promotion, castling, en passant, and piece movements
 - [x] Make and unmake moves.
-- [ ] Basic search
+- [ ] Basic search (in progres...)
   - Implement minimax tree with alpha-beta pruning
   - Fixed search depth (4 or 5)
-- [ ] Evaluation function
+- [x] Evaluation function
   - Material based evaluation
   - Standard piece value (eg. pawns == 100)
-- [ ] UCI Protocol Support
+- [x] UCI Protocol Support
   - Correct handling of uci, isready, go, stop, quit
   - Outputs valid bestmove
   - Compatible with UCI GUIs and Lichess bot integration
@@ -25,13 +25,51 @@ Produces a fully functional chess engine that can communicate via UCI protocol a
 ## File Structure
 
 ```
-├── /.venv          python dependencies
-├── /.vscode        vscode config folder
-├── /engine         chess program
-├── /scripts        potential scripts
+├── /.venv
+├── /build
+├── /docs
+├── /include
+├── /src
+├── /tests
+├── .dockerignore
 ├── .env
+├── .env.example
 ├── .gitignore
-├── bot.py
+├── client.py
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── Dockerfile
+├── Makefile
 ├── README.md
-├── requirements.txt
+└── requirements.txt
+```
+
+## Getting started
+
+### Installation
+
+Clone repository:
+
+```
+git clone git@github.com:gradimbuyi/ChessIT.git
+```
+
+### Environment Variables
+
+Create a `.env` file using the provided example:
+
+.env.example
+
+### Running with Docker
+
+Build and start all services:
+
+```
+docker compose up --build
+```
+
+Stopping the application:
+
+```
+docker compose down -v
 ```
