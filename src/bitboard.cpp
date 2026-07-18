@@ -1,8 +1,8 @@
 #include <iostream>
-#include "bitboard.h"
+#include "../include/bitboard.hpp"
 
 Bitboard::Bitboard() { 
-    initizializeSTARTPOSpiecesBB();
+    initializeSTARTPOSpiecesBB();
 
     updateOccupancy();
 
@@ -19,12 +19,12 @@ Bitboard::Bitboard() {
 void Bitboard::printBitboard(int color, int type) {
     uint64_t bb = getPieces(color, type);
 
-    if((color > 1 || color < 0) && (type > 5 || type < 0)) {
+    if((color > 1 || color < 0) || (type > 5 || type < 0)) {
         std::cout << "Invalid inputs. Could not print out bitboard" << std::endl << std::endl;
         return ;
     }
 
-    std::cout << "Priting bitboard..." << std::endl << std::endl;
+    std::cout << "Printing bitboard..." << std::endl << std::endl;
 
     for(int rank = 7; rank >= 0; rank--) {
         std::cout << rank + 1 << " ";
@@ -42,7 +42,7 @@ void Bitboard::printBitboard(int color, int type) {
     std::cout << "\n   a b c d e f g h\n\n";
 }
 
-void Bitboard::initizializeSTARTPOSpiecesBB() {
+void Bitboard::initializeSTARTPOSpiecesBB() {
     piecesBB[WHITE][PAWNS]   = 0x000000000000FF00ULL;
     piecesBB[WHITE][KNIGHTS] = 0x0000000000000042ULL;
     piecesBB[WHITE][BISHOPS] = 0x0000000000000024ULL;
@@ -173,6 +173,7 @@ void Bitboard::nonEnPassantCaptureHanlder(uint64_t to_mask) {
     bool enemy = !side;
     
     for(int pt = 0; pt < 6; pt++) {
+        if(pt == KING) continue;
         if(piecesBB[enemy][pt] & to_mask) {
             piecesBB[enemy][pt] &= ~to_mask;
             break;
@@ -239,20 +240,33 @@ void Bitboard::makeMove(const Move &move) {
 
     int piece = getPieceType(side, from);
 
+    if(piece == -1) {
+        std::cerr << "Invalid piece on square " << from << std::endl;
+        std::abort();
+    }
+
     ep_square = -1;
 
     piecesBB[side][piece] &= ~from_mask;
 
     specialMoveHandler(from, to, flag);
     
-    if (move.isCapture() && flag != EN_CAPTURES) nonEnPassantCaptureHanlder(to_mask);
+    int captured = -1;
+
+    if (move.isCapture() && flag != EN_CAPTURES) {
+        captured = getPieceType(enemy, to);
+        nonEnPassantCaptureHanlder(to_mask);
+    }
     
     promoMoveHandler(to_mask, flag);
 
     if (flag < KNIGHT_PROMOTION) piecesBB[side][piece] |= to_mask;
     if (piece == KING)           revokeCastlingRights();
     if (piece == ROOKS)          revokeRookSideCastlingRight(side, from);
-    if (move.isCapture())        revokeRookSideCastlingRight(enemy, to);
+    
+    if (captured == ROOKS) {
+        revokeRookSideCastlingRight(enemy, to);
+    }
 
     updateOccupancy();
     
@@ -423,7 +437,7 @@ void Bitboard::loadFEN(const std::string &fen) {
             case 'N' : case 'n' : piecesBB[color][KNIGHTS] |= (1ULL << square); break;
             case 'B' : case 'b' : piecesBB[color][BISHOPS] |= (1ULL << square); break;
             case 'R' : case 'r' : piecesBB[color][ROOKS]   |= (1ULL << square); break;
-            case 'Q' : case 'q' : piecesBB[color][QUEENS]  |= (1uLL << square); break;
+            case 'Q' : case 'q' : piecesBB[color][QUEENS]  |= (1ULL << square); break;
             case 'K' : case 'k' : piecesBB[color][KING]    |= (1ULL << square); break;
         }
 
@@ -474,7 +488,7 @@ void Bitboard::updateOccupancyPublic() {
     updateOccupancy(); 
 }
 void Bitboard::tempRemovePiece(int color, int piece, uint64_t mask) { 
-    piecesBB[color][piece] &= -mask;
+    piecesBB[color][piece] &= ~mask;
     updateOccupancy();
 }
 

@@ -1,11 +1,10 @@
-#ifndef PERFT_H
-#define PERFT_H
+#pragma once
 
 #include <cstdint>
 #include <string>
 
-#include "bitboard.h"
-#include "movegen.h"
+#include "bitboard.hpp"
+#include "movegen.hpp"
 
 // Inpsired by this beauty: https://www.chessprogramming.org/Perft_Results
 //
@@ -59,5 +58,3 @@ class Perft {
         void runPerftStats(Bitboard &bitboard, int depth);
         PerftStats perfStats(Bitboard &bitboard, int depth);
 };
-
-#endif

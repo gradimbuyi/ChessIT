@@ -8,12 +8,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY Makefile .
-COPY engine/ engine/
+COPY include/ include/
+COPY src/ src/
+
 RUN make
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY client/ client/
+COPY client.py .
 
-CMD ["python", "-m", "client.src.main"]
+CMD ["python", "client.py"]

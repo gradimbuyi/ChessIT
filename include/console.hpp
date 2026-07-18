@@ -1,10 +1,9 @@
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#pragma once
 
 #include <string>
 
-#include "bitboard.h"
-#include "perft.h"
+#include "bitboard.hpp"
+#include "perft.hpp"
 
 class Console {
     private:
@@ -21,5 +20,3 @@ class Console {
         Console(Bitboard &bitboard);
         void runEngineCLI();
 };
-
-#endif

@@ -1,9 +1,12 @@
-#include "movegen.h"
 #include <iostream>
+#include "../include/movegen.hpp"
 
 void MoveGenerator::generateMoves(Bitboard &bitboard, std::vector<Move> &moves) {
     std::vector<Move> candidates;
     
+    moves.clear();
+    moves.reserve(80);
+
     candidates.reserve(80);
 
     pawnMoves(bitboard, candidates);
@@ -80,7 +83,6 @@ void MoveGenerator::pawnMoves(const Bitboard &bitboard, std::vector<Move> &moves
     bool side = bitboard.getMovingSide();
 
     uint64_t pawns    = bitboard.getPieces(side, PAWNS);
-    uint64_t friendly = side == WHITE ? bitboard.getWhiteOccupied() : bitboard.getBlackOccupied();
     uint64_t enemy    = side == WHITE ? bitboard.getBlackOccupied() : bitboard.getWhiteOccupied();
     uint64_t occupied = bitboard.getOccupied();
 

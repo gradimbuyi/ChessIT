@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/bitboard.h"
-#include "../src/movegen.h"
-#include "../src/perft.h"
+#include "../include/bitboard.hpp"
+#include "../include/movegen.hpp"
+#include "../include/perft.hpp"
 
 class PerftTest : public ::testing::Test {
     protected:

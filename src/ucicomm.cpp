@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "ucicomm.h"
+#include "../include/ucicomm.hpp"
 
 UCIComm::UCIComm(Bitboard &bitboard) : bitboard(bitboard) {
     std::srand(std::time(nullptr));
@@ -28,6 +28,7 @@ Move UCIComm::parseMoveString(const std::string &move_string) {
 
     for(const Move &move : moves) {
         if((int) move.getFrom() != from || move.getTo() != to) continue ;
+        if(move.getFrom() == -1) continue;
 
         int flag = move.getFlag();
 
@@ -41,13 +42,19 @@ Move UCIComm::parseMoveString(const std::string &move_string) {
         }
     }
 
-    return Move(from, to, QUIET);
+    return Move(-1, -1, QUIET);
 }
 
 Move UCIComm::pickRandomMove() {
     std::vector<Move> moves;
     movegen.generateMoves(bitboard, moves);
+    if(moves.empty()) return Move(0, 0, QUIET);
     return moves[std::rand() % moves.size()];
+}
+
+Move UCIComm::pickBestMove(int depth) {
+    Eval eval(bitboard, movegen);
+    return eval.search(depth);
 }
 
 void UCIComm::positionHandler(std::istringstream &iss) {
@@ -79,10 +86,16 @@ void UCIComm::positionHandler(std::istringstream &iss) {
 
 void UCIComm::goHandler(std::istringstream &iss) {
     std::string token;
+    int depth = 3; 
 
-    while(iss >> token) { }
+    while(iss >> token) {
+        if(token == "depth" && (iss >> depth)) {
+            depth = std::min(depth, 5);  
+        }
+    }
 
-    Move best = pickRandomMove();
+    //Move best = pickBestMove(depth);
+    Move best = pickBestMove(depth);
     
     int from = best.getFrom();
     int to   = best.getTo();

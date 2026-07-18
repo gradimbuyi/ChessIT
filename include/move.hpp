@@ -1,5 +1,4 @@
-#ifndef MOVE_H
-#define MOVE_H
+#pragma once
 
 enum Flags {
     QUIET, DOUBLE_PAWN_PUSH, KING_CASTLE, QUEEN_CASTLE, CAPTURES,
@@ -37,5 +36,3 @@ class Move {
         bool operator!=(Move a) const { return (m_Move & 0xffff) != (a.m_Move & 0xffff); }
         void operator=(Move a) { m_Move = a.m_Move; }    
 };
-
-#endif

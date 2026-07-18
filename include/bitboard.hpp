@@ -1,13 +1,12 @@
-#ifndef BITBOARD_H
-#define BITBOARD_H
+#pragma once
 
 #include <cstdint> 
 #include <string>
 #include <vector>
 
-#include "move.h"
+#include "move.hpp"
 
-enum bbtype { KING, QUEENS, ROOKS, BISHOPS, KNIGHTS, PAWNS};
+enum bbtype { PAWNS, KNIGHTS, BISHOPS, ROOKS, QUEENS, KING };
 enum colors { WHITE, BLACK };
 
 struct CastlingRight {
@@ -46,7 +45,7 @@ class Bitboard {
         void revokeCastlingRights();
         void revokeRookSideCastlingRight(int color, int from);
         void resetState();
-        void initizializeSTARTPOSpiecesBB();
+        void initializeSTARTPOSpiecesBB();
 
     public:
         Bitboard();
@@ -81,5 +80,3 @@ class Bitboard {
         void tempRemovePiece(int color, int piece, uint64_t mask);
         void tempRestorePiece(int color, int piece, uint64_t mask);
 };
-
-#endif

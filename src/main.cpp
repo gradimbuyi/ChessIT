@@ -1,6 +1,6 @@
-#include "bitboard.h"
-#include "console.h"
-#include "ucicomm.h"
+#include "../include/bitboard.hpp"
+#include "../include/console.hpp"
+#include "../include/ucicomm.hpp"
 
 int main(int argc, char *argv[]) {
     Bitboard bitboard;

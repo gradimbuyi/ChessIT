@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <chrono>
 
-#include "perft.h"
+#include "../include/perft.hpp"
 
 uint64_t Perft::perftRecurse(Bitboard &bitboard, int depth) {
     if(depth == 0) return 1;
