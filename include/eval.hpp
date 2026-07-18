@@ -83,7 +83,7 @@ class Eval {
     private:
         Bitboard        &bitboard;
         MoveGenerator   &movegen;
-        int             depth;
+        
         int             node_count;  
         static constexpr int MAX_NODES = 100000; 
     

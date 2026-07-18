@@ -3,8 +3,6 @@
 #include "bitboard.hpp"
 #include "move.hpp"
 
-#include <vector>
-
 class MoveGenerator {
     public:
         void generateMoves(Bitboard &bitboard, std::vector<Move> &moves);

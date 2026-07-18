@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../include/movegen.hpp"
 
 void MoveGenerator::generateMoves(Bitboard &bitboard, std::vector<Move> &moves) {

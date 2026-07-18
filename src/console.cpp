@@ -1,9 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include <string>
-
 #include "../include/console.hpp"
-#include "../include/ucicomm.hpp"
 
 Console::Console(Bitboard &bitboard) : bitboard(bitboard) {
     bitboard.loadFEN(STARTPOS);

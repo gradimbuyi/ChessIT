@@ -1,7 +1,3 @@
-#include <iostream>
-#include <iomanip>
-#include <chrono>
-
 #include "../include/perft.hpp"
 
 uint64_t Perft::perftRecurse(Bitboard &bitboard, int depth) {

@@ -1,8 +1,7 @@
-#include <vector>
 #include "../include/eval.hpp"
 
 Eval::Eval(Bitboard &bitboard, MoveGenerator &movegen) 
-    : bitboard(bitboard), movegen(movegen), depth(0), node_count(0) {}
+    : bitboard(bitboard), movegen(movegen), node_count(0) {}
 
 int Eval::evaluate() {
     int score = 0;
@@ -11,10 +10,8 @@ int Eval::evaluate() {
         uint64_t whiteBB = bitboard.getPieces(WHITE, piecetype);
         uint64_t blackBB = bitboard.getPieces(BLACK, piecetype);
         
-        // Material count
         score += MATERIAL[piecetype] * (popcount(whiteBB) - popcount(blackBB));
 
-        // White piece square table
         uint64_t tmp = whiteBB;
         while(tmp) {
             int sq = __builtin_ctzll(tmp);
@@ -22,7 +19,6 @@ int Eval::evaluate() {
             tmp &= tmp - 1;
         }
 
-        // Black piece square table (negated because it's from black's perspective)
         tmp = blackBB;
         while(tmp) {
             int sq = __builtin_ctzll(tmp);
@@ -31,7 +27,6 @@ int Eval::evaluate() {
         }
     }
 
-    // Double Pawn Penalty (removes 20 points per double pawns)
     static constexpr uint64_t FILE_MASK[8] = {
         0x0101010101010101ULL, 0x0202020202020202ULL,
         0x0404040404040404ULL, 0x0808080808080808ULL,
@@ -51,14 +46,13 @@ int Eval::evaluate() {
 
 
 int Eval::minimax(int depth, Move *best_move) {
-    // Safety checks
     if(depth <= 0) return evaluate();
-    if(node_count >= MAX_NODES) return evaluate();  // Hit node limit, return early
+    if(node_count >= MAX_NODES) return evaluate();  
     
     node_count++;
 
     std::vector<Move> moves;
-    moves.reserve(80);  // Pre-allocate to avoid repeated allocations
+    moves.reserve(80); 
     
     bool side = bitboard.getMovingSide();
     bool isInCheck = bitboard.isKingInCheck(side);
@@ -70,10 +64,10 @@ int Eval::minimax(int depth, Move *best_move) {
             return side == WHITE ? -INF : INF;
         }
 
-        return 0;  // Stalemate
+        return 0;  
     }
 
-    depth--;  // Decrement at start
+    depth--;  
 
     if(side == WHITE) {
         int best = -INF;
@@ -89,7 +83,7 @@ int Eval::minimax(int depth, Move *best_move) {
             }
         }
 
-        depth++;  // Restore depth for parent
+        depth++;  
         return best;
     }
 
@@ -106,14 +100,13 @@ int Eval::minimax(int depth, Move *best_move) {
          }
     }
 
-    depth++;  // Restore depth for parent
+    depth++; 
     return best;
 }
 
 Move Eval::search(int search_depth) {
     Move best = Move(0, 0, QUIET);
-    depth = search_depth;
-    node_count = 0;  // Reset node counter for this search
-    minimax(depth, &best);
+    node_count = 0;  
+    minimax(search_depth, &best);
     return best;
 }

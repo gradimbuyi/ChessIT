@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include <cstdlib>
+#include <ctime>
 
 #include "bitboard.hpp"
 #include "movegen.hpp"

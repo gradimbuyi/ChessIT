@@ -1,8 +1,7 @@
 #pragma once
 
-#include <string>
-
 #include "bitboard.hpp"
+#include "ucicomm.hpp"
 #include "perft.hpp"
 
 class Console {
