@@ -44,9 +44,8 @@ int Eval::evaluate() {
     return score;
 }
 
-
 int Eval::minimax(int depth, Move *best_move) {
-    if(depth <= 0) return evaluate();
+    if(depth == 0) return evaluate();
     if(node_count >= MAX_NODES) return evaluate();  
     
     node_count++;
@@ -66,9 +65,7 @@ int Eval::minimax(int depth, Move *best_move) {
 
         return 0;  
     }
-
-    depth--;  
-
+ 
     if(side == WHITE) {
         int best = -INF;
         
@@ -77,13 +74,12 @@ int Eval::minimax(int depth, Move *best_move) {
             int score = minimax(depth - 1, nullptr);
             bitboard.undoMove();
             
-            if(score > best) {
+            if(score >= best) {
                 best = score;
                 if(best_move) *best_move = move;
             }
         }
 
-        depth++;  
         return best;
     }
 
@@ -94,13 +90,12 @@ int Eval::minimax(int depth, Move *best_move) {
          int score = minimax(depth - 1, nullptr);
          bitboard.undoMove();
 
-         if(score < best) {
+         if(score <= best) {
             best = score;
             if(best_move) *best_move = move;
          }
     }
 
-    depth++; 
     return best;
 }
 
