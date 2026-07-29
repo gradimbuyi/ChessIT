@@ -99,9 +99,16 @@ int Eval::minimax(int depth, Move *best_move) {
     return best;
 }
 
-Move Eval::search(int search_depth) {
+Move Eval::search(int max_depth) {
     Move best = Move(0, 0, QUIET);
-    node_count = 0;  
-    minimax(search_depth, &best);
+    node_count = 0;
+
+    for(int depth = 1; depth <= max_depth; depth++) {
+        Move current_best = Move(0, 0, QUIET);
+        minimax(depth, &current_best); 
+        if(node_count >= MAX_NODES) break;   
+        best = current_best;  
+    }
+
     return best;
 }
