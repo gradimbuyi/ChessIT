@@ -36,9 +36,9 @@ Produces a fully functional chess engine that can communicate via UCI protocol a
 ├── .env.example
 ├── .gitignore
 ├── client.py
+├── CMakeLists.txt
 ├── docker-compose.yml
 ├── docker-compose.prod.yml
-├── Dockerfile
 ├── Makefile
 ├── README.md
 └── requirements.txt
