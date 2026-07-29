@@ -79,7 +79,7 @@ void UCIComm::positionHandler(std::istringstream &iss) {
 
 void UCIComm::goHandler(std::istringstream &iss) {
     std::string token;
-    int depth = 3; 
+    int depth = 5; 
 
     while(iss >> token) {
         if(token == "depth" && (iss >> depth)) {
@@ -87,7 +87,6 @@ void UCIComm::goHandler(std::istringstream &iss) {
         }
     }
 
-    //Move best = pickBestMove(depth);
     Move best = pickBestMove(depth);
     
     int from = best.getFrom();

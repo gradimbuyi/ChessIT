@@ -134,7 +134,7 @@ def main():
     
     try: 
         client = Client()
-        engine = Engine("./build/engine")
+        engine = Engine("./build/Release/engine")
         
         busy = False
 

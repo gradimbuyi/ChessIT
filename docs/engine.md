@@ -2,34 +2,54 @@
 
 An engine that evaluates positions, calculate moves, and makes the move based on evaluation. Written in C++, this engine communicates with Lichess through the website's public facing API endpoints by utilizing the UCI communication protocol.
 
-Users can also interact with the engine through its CLI. See below for instructions.
+Users can also interact with the engine through its command line interface.
 
 ## How to Use
 
-### Building the Program
+### Execute Program
 
-The project makes use of Make to compile and run the program.
+Program depends on cmake for compilation instructions. Visit https://cmake.org/ for more instructions on how to install and use cmake.
 
-You can download make here: https://www.gnu.org/software/make/
+#### Configure builds:
 
-#### Cleaning the build:
-
-```
-make clean
-```
-
-#### Running the tests:
-
-This requires the developer to have the googletest dependencies downaloaded. Instructions can be found on the link above.
+command for debug build:
 
 ```
-make test
+cmake -S . -B build/Debug -DCMAKE_BUILD_TYPE=Debug
 ```
 
-#### Running the program:
+command for release build:
 
 ```
-make run
+cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
+```
+
+#### Build:
+
+build for debug:
+
+```
+cmake --build build/Debug
+```
+
+build for release:
+
+```
+cmake --build build/Release
+```
+
+#### Run:
+
+run in debug mode:
+
+```
+./build/Debug/engine
+```
+
+run in release mode:
+
+```
+./build/Release/engine
 ```
 
 ### Interacting with the Command Line Interface
