@@ -2,6 +2,10 @@
 
 This project aims to implement a simple chess engine that can be integrated into lichess. In order for it to run efficiently, I've chosen C++ as my development language.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="ChessIT Demo" width="800">
+</p>
+
 ## Minimum Viable Product
 
 Produces a fully functional chess engine that can communicate via UCI protocol and play complete games on the platform Lichess.
