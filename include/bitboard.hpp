@@ -2,25 +2,22 @@
 
 #include <cstdint> 
 #include <vector>
-
 #include <iostream>
 #include <sstream>
 #include <string>
 
 #include "move.hpp"
-
-enum bbtype { PAWNS, KNIGHTS, BISHOPS, ROOKS, QUEENS, KING };
-enum colors { WHITE, BLACK };
+#include "types.hpp"
 
 struct CastlingRight {
-    bool king_side[2];
-    bool queen_side[2];
+    bool ks[2];
+    bool qs[2];
 };
 
 struct BoardState {
-    uint64_t pieces[2][6];
-    bool side;
-    int ep_square;
+    uint64_t      pieces[2][6];
+    bool          side;
+    int           ep_square;
     CastlingRight castling;
 };
 
@@ -31,8 +28,7 @@ class Bitboard {
         uint64_t white_occupied;
         uint64_t black_occupied;
 
-        bool side; 
-        
+        bool side;  
         int ep_square;
         CastlingRight castling;
         
@@ -55,31 +51,60 @@ class Bitboard {
        
         void printBitboard(const int color, const int type);
         void visualizeBoard();
-        
-        uint64_t getPieces(const int color, const int type) const { return piecesBB[color][type]; }
-        uint64_t getOccupied() const { return occupied; }
-        uint64_t getWhiteOccupied() const { return white_occupied; }
-        uint64_t getBlackOccupied() const { return black_occupied; }
-        
-        void setPieces(const int color, const int type, uint64_t pieces) { piecesBB[color][type] = pieces; }
-        void setMovingSide(bool value) { side = value; }
-        void setEpSquare(int square) { ep_square = square; }
-        void setCastlingRights(CastlingRight &rights) { castling = rights; }
-       
-        int getEpSquare() const { return ep_square; }
-        int getPieceTypePublic(int color, int square);
-        
-        bool getMovingSide() const { return side; }
-
-        bool canCastleKingSide(int color)  const { return castling.king_side[color]; }
-        bool canCastleQueenSide(int color) const { return castling.queen_side[color]; }
-        bool isSquareAttacked(int square, int color) const;
-        bool isKingInCheck(int color) const;
-
         void makeMove(const Move &move);
         void undoMove();
         void loadFEN(const std::string &fen);
-        void updateOccupancyPublic();
-        void tempRemovePiece(int color, int piece, uint64_t mask);
-        void tempRestorePiece(int color, int piece, uint64_t mask);
+        void removePiece(int color, int piece, uint64_t mask);
+        void restorePiece(int color, int piece, uint64_t mask);
+       
+        void setPieces(const int color, const int type, uint64_t pieces) { 
+            piecesBB[color][type] = pieces; 
+        }
+       
+        void setMovingSide(bool value) { 
+            side = value; 
+        }
+        
+        void setEpSquare(int square) {
+            ep_square = square; 
+        }
+        
+        void setCastlingRights(CastlingRight &rights) { 
+            castling = rights; 
+        }        
+        
+        uint64_t getPieces(const int color, const int type) const { 
+            return piecesBB[color][type]; 
+        }
+        
+        uint64_t getOccupied() const { 
+            return occupied; 
+        }
+
+        uint64_t getWhiteOccupied() const { 
+            return white_occupied; 
+        }
+
+        uint64_t getBlackOccupied() const { 
+            return black_occupied; 
+        }
+        
+        int getEpSquare() const { 
+            return ep_square; 
+        }
+        
+        bool getMovingSide() const {
+             return side; 
+        }
+
+        bool canCastleKingSide(int color) const { 
+            return castling.ks[color]; 
+        }
+
+        bool canCastleQueenSide(int color) const { 
+            return castling.qs[color]; 
+        }
+        
+        bool isSquareAttacked(int square, int color) const;
+        bool isKingInCheck(int color) const;
 };
